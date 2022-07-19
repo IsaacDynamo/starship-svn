@@ -1,0 +1,12 @@
+[package]
+name = "starship-svn"
+authors = ["IsaacDynamo"]
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+svn-cmd = { git = "https://github.com/rajputrajat/svn-cmd.git", rev = "6503030" }
+url = "2.2.2"
+clap = { version = "3.2.12", features = ["derive"] }
