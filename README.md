@@ -1,5 +1,5 @@
 # starship-svn
-SVN support for [starship.rs](starship.rs) via a custom commands.
+SVN support for [starship.rs](https://starship.rs) via a custom commands.
 
 ![demo](starship-svn-demo.png)
 
@@ -17,7 +17,7 @@ The algorithm continues to scans right for a branch name until a non blacklisted
 
 
 ## Install
-`starship-svn` uses `svn` CLI so make sure it is installed. This can be checked with `svn --version`.
+`starship-svn` uses `svn` CLI, so make sure it is installed. This can be checked with `svn --version`.
 
 Install `starship-svn`
 ```
@@ -36,3 +36,8 @@ format      = 'on [$symbol$output]($style) '
 symbol      = ' '
 style       = 'bold purple'
 ```
+
+## Future work
+Currently SVN support is done via an custom command. This means that the starship directory module is not aware of the SVN repository. So some path shortening doesn't work as it would with a Git repository.
+
+A future improvement would be to port this code to a starship module, and add native SVN support to starship.
