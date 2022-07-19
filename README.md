@@ -13,7 +13,7 @@ folder named 'branches' or 'tags' the next folder is considered the branch name,
 blacklisted.
 
 If your branch named folder is not a direct child of 'branches' or 'tags' the inbetween folders can be blacklisted.
-The algorithm continues to scans right for a branch name until a non blacklisted folder name is found.
+The algorithm continues to consider deeper folders as the branch name until a non blacklisted folder name is found.
 
 
 ## Install
@@ -38,6 +38,6 @@ style       = 'bold purple'
 ```
 
 ## Future work
-Currently SVN support is done via an custom command. This means that the starship directory module is not aware of the SVN repository. So some path shortening doesn't work as it would with a Git repository.
+Currently SVN support is done via a custom command. This means that the starship directory module is not aware of the SVN repository. So some path shortening doesn't work as it would with a Git repository.
 
 A future improvement would be to port this code to a starship module, and add native SVN support to starship.
