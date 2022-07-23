@@ -16,7 +16,35 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
+
+    - uses: actions-rs/toolchain@v1.0.7
+      with:
+        toolchain: stable
+        target: x86_64-pc-windows-gnu, x86_64-unknown-linux-gnu
+
     - name: Run tests
       run: cargo test --verbose
+
+    - name: Build linux
+      uses: actions-rs/cargo@v1.0.3
+      with:
+        command: build
+        args: --release --target x86_64-unknown-linux-gnu
+
+    - name: Upload artifacts linux
+      uses: actions/upload-artifact@v3
+      with:
+        name: starship-svn
+        path: target/x86_64-unknown-linux-gnu/release/starship-svn
+
+    - name: Build windows
+      uses: actions-rs/cargo@v1.0.3
+      with:
+        command: build
+        args: --release --target x86_64-pc-windows-gnu
+
+    - name: Upload artifacts windows
+      uses: actions/upload-artifact@v3
+      with:
+        name: starship-svn.exe
+        path: target/x86_64-pc-windows-gnu/release/starship-svn.exe
