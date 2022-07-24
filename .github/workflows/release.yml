@@ -14,11 +14,9 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: starship-svn
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: starship-svn.exe
             rustflags: -C target-feature=+crt-static
 
     runs-on: ${{ matrix.os }}
@@ -41,9 +39,31 @@ jobs:
         command: build
         args: --release --target ${{ matrix.target }}
 
-    - name: Upload artifacts
+    - name: Post Build | Prepare artifacts [Windows]
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd target/${{ matrix.target }}/release
+        strip starship-svn.exe
+        7z a starship-svn.zip starship-svn.exe
+        cd -
+    - name: Post Build | Prepare artifacts [-nix]
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd target/${{ matrix.target }}/release
+        # TODO: investigate better cross platform stripping
+        strip starship-svn || true
+        tar czvf starship-svn.tar.gz starship-svn
+        cd -
+
+    - name: Upload artifacts [Windows]
+      if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.name }}
-        path: target/${{ matrix.target }}/release/${{ matrix.name }}
-
+        name: starship-svn-${{ matrix.target }}.zip
+        path: target/${{ matrix.target }}/release/starship-svn.zip
+    - name: Upload artifacts [-nix]
+      if: matrix.os != 'windows-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: starship-svn-${{ matrix.target }}.tar.gz
+        path: target/${{ matrix.target }}/release/starship-svn.tar.gz

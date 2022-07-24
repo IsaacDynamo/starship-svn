@@ -24,6 +24,8 @@ Install `starship-svn`
 cargo install --git https://github.com/IsaacDynamo/starship-svn
 ```
 
+Alternatively for some platforms a prebuilt executable can be downloaded from the [github actions workflow](https://github.com/IsaacDynamo/starship-svn/actions/workflows/release.yml).
+
 ## Config
 Add the following to your `starship.toml`.
 
