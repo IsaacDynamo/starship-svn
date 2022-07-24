@@ -1,8 +1,9 @@
 use clap::Parser;
-use std::io::Error;
+use std::io::Error as IoError;
 use std::path::Path;
 use svn_cmd::{SvnCmd, SvnError, SvnInfo};
 use url::{ParseError, Url};
+use thiserror::Error;
 
 const ABOUT: &str = concat!(
 r#"Print SVN branch name when in a working copy.
@@ -37,33 +38,22 @@ struct Args {
     blacklist: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 enum AppErr {
-    Svn(SvnError),
-    Url(ParseError),
-    Io(Error),
-    UnexpectedRepoLayout,
-    BranchNameNotFound,
+    #[error("{0}")]
+    Svn(#[from] SvnError),
+    #[error("{0}")]
+    Url(#[from] ParseError),
+    #[error("{0}")]
+    Io(#[from] IoError),
+    #[error("unexpected repo layout, expected 'trunk', 'branches' or 'tags' folder in '{0}'")]
+    UnexpectedRepoLayout(String),
+    #[error("branch name not found in '{0}'")]
+    BranchNameNotFound(String),
+    #[error("path is not UTF-8")]
     PathNotUtf8,
+    #[error("internal parse error")]
     ParseError,
-}
-
-impl From<SvnError> for AppErr {
-    fn from(e: SvnError) -> Self {
-        Self::Svn(e)
-    }
-}
-
-impl From<ParseError> for AppErr {
-    fn from(e: ParseError) -> Self {
-        Self::Url(e)
-    }
-}
-
-impl From<Error> for AppErr {
-    fn from(e: Error) -> Self {
-        Self::Io(e)
-    }
 }
 
 /// Try to determine branch name from svn info.
@@ -71,6 +61,7 @@ fn branch(info: &SvnInfo, blacklist: &[String]) -> Result<String, AppErr> {
     // Convert url
     let url = Url::parse(&info.entry.url)?;
     let path = Path::new(url.path());
+    let path_str = path.to_str().ok_or(AppErr::PathNotUtf8)?;
 
     // Walk over the path
     let mut iter = path.iter();
@@ -96,11 +87,11 @@ fn branch(info: &SvnInfo, blacklist: &[String]) -> Result<String, AppErr> {
                 // First non blacklisted folder after 'branches' or 'tags'
                 return Ok(folder.to_string());
             }
-            return Err(AppErr::BranchNameNotFound);
+            return Err(AppErr::BranchNameNotFound(path_str.to_string()));
         }
     }
 
-    Err(AppErr::UnexpectedRepoLayout)
+    Err(AppErr::UnexpectedRepoLayout(path_str.to_string()))
 }
 
 /// Find the root of the working copy
@@ -129,7 +120,7 @@ fn root(info: &SvnInfo, pwd: &Path) -> Result<String, AppErr> {
     }
 }
 
-fn main() -> Result<(), AppErr> {
+fn body() -> Result<(), AppErr> {
     let args = Args::parse();
 
     // Prepare target path
@@ -147,4 +138,11 @@ fn main() -> Result<(), AppErr> {
     }
 
     Ok(())
+}
+
+fn main() {
+    if let Err(err) = body() {
+        eprintln!("error: {}", err);
+        std::process::exit(1);
+    }
 }
