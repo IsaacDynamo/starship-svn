@@ -2,8 +2,8 @@ use clap::Parser;
 use std::io::Error as IoError;
 use std::path::Path;
 use svn_cmd::{SvnCmd, SvnError, SvnInfo};
-use url::{ParseError, Url};
 use thiserror::Error;
+use url::{ParseError, Url};
 
 const ABOUT: &str = concat!(
 r#"Print SVN branch name when in a working copy.
